@@ -3,37 +3,89 @@ package keyboards
 import (
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/ui/keyboard/inline"
+	"github.com/savabush/breakfastLoveBot/internal/entities"
+	"github.com/savabush/breakfastLoveBot/internal/transport/telegram/utils"
 )
 
-func GetFoodKeyboard(
-	b *bot.Bot,
-	// addToCart,
-	// cancelHandler,
-	// showFoodCard,
-	// showCart inline.OnSelect,
-	countOfCardsInCart uint8,
-) *inline.Keyboard {
+type FoodButton struct {
+	Text    string
+	OnClick inline.OnSelect
+}
 
-	kb := inline.New(b, inline.NoDeleteAfterClick()).
-		Row()
-		// Button(fmt.Sprintf("Корзина 🛒 (%d)", countOfCardsInCart), []byte("show-cart"), showCart). //.Button("👆 Добавить в корзину", []byte("add-to-cart"), addToCart).
-		// Row().
-		// 	Button("Бутербродики 🥪", []byte("food-sandwich"), showFoodCard).Button("Скрррембл 🍳", []byte("food-scramble"), showFoodCard).
-		// 	Row().
-		// 	Button("Пастя лосось 🍝", []byte("food-pasta-losos"), showFoodCard).Button("Лазаньй 🤌🏻", []byte("food-lasagna"), showFoodCard).
-		// 	Row().
-		// 	Button("Картошка тефтельная 🥔🍖", []byte("food-potato-teftelya"), showFoodCard).Button("Пирог лимонный 🍋", []byte("food-cake-lemon"), showFoodCard).
-		// 	Row().
-		// 	Button("Вишневи пирог 🍓", []byte("food-cake-strawberry"), showFoodCard).Button("Жаркое соусное 🍖", []byte("food-jarko"), showFoodCard).
-		// 	Row().
-		// 	Button("Котлеты отрубили 🔪", []byte("food-kotletos"), showFoodCard).Button("Яйцо Павел 🥚", []byte("food-egg-pavel"), showFoodCard).
-		// 	Row().
-		// 	Button("Пирожучки 🥖", []byte("food-piroshki"), showFoodCard).Button("Петушиный суп 🥘", []byte("food-egg-soup"), showFoodCard).
-		// 	Row().
-		// 	Button("Запуканочка 🥵", []byte("food-zapekano4ka"), showFoodCard).Button("Соси сосочки 🌭", []byte("food-sosisos"), showFoodCard).
-		// 	Row().
-		// 	Button("Картошка освобожденная 🍟", []byte("food-fri"), showFoodCard).
-		// 	Row().
-		// Button("В главное меню", []byte("cancel"), cancelHandler)
+type FoodKeyboardConfig struct {
+	RandomHandler        inline.OnSelect
+	AddToCart            inline.OnSelect
+	ShowCartHandler      inline.OnSelect
+	MainMenuHandler      inline.OnSelect
+	DeleteCurrentHandler inline.OnSelect
+	CartButtonText       string
+	AddFoodHandler       inline.OnSelect
+	EditCurrentHandler   inline.OnSelect
+	FoodButtons          []FoodButton
+}
+
+type EmptyFoodKeyboardConfig struct {
+	AddFoodHandler inline.OnSelect
+	Lang           entities.LanguageCode
+}
+
+func GetFoodKeyboard(b *bot.Bot, cfg FoodKeyboardConfig, lang entities.LanguageCode) *inline.Keyboard {
+	kb := inline.New(b, inline.NoDeleteAfterClick())
+
+	if cfg.RandomHandler != nil {
+		kb.Row().
+			Button(utils.Text(lang, utils.KeyBtnRandomFood), []byte("food-random"), cfg.RandomHandler)
+	}
+
+	if cfg.AddToCart != nil {
+		kb.Row().
+			Button(utils.Text(lang, utils.KeyBtnAddToCart), []byte("food-add-to-cart"), cfg.AddToCart)
+	}
+
+	if cfg.EditCurrentHandler != nil {
+		kb.Row().
+			Button(utils.Text(lang, utils.KeyBtnEditFood), []byte("food-edit-current"), cfg.EditCurrentHandler)
+	}
+
+	if cfg.DeleteCurrentHandler != nil {
+		kb.Row().
+			Button(utils.Text(lang, utils.KeyBtnDeleteFood), []byte("food-delete-current"), cfg.DeleteCurrentHandler)
+	}
+
+	if cfg.ShowCartHandler != nil {
+		text := cfg.CartButtonText
+		if text == "" {
+			text = utils.Text(lang, utils.KeyBtnShowCart)
+		}
+		kb.Row().
+			Button(text, []byte("food-show-cart"), cfg.ShowCartHandler)
+	}
+
+	if cfg.MainMenuHandler != nil {
+		kb.Row().
+			Button(utils.Text(lang, utils.KeyBtnMainMenu), []byte("food-main-menu"), cfg.MainMenuHandler)
+	}
+
+	for i, btn := range cfg.FoodButtons {
+		if i%2 == 0 {
+			kb.Row()
+		}
+		kb.Button(btn.Text, []byte("food-select"), btn.OnClick)
+	}
+
+	if cfg.AddFoodHandler != nil {
+		kb.Row().
+			Button(utils.Text(lang, utils.KeyBtnAddFood), []byte("food-add"), cfg.AddFoodHandler)
+	}
+
+	return kb
+}
+
+func GetEmptyFoodKeyboard(b *bot.Bot, cfg EmptyFoodKeyboardConfig) *inline.Keyboard {
+	kb := inline.New(b, inline.NoDeleteAfterClick())
+	if cfg.AddFoodHandler != nil {
+		kb.Row().
+			Button(utils.Text(cfg.Lang, utils.KeyBtnAddFoodEmpty), []byte("food-empty-add"), cfg.AddFoodHandler)
+	}
 	return kb
 }

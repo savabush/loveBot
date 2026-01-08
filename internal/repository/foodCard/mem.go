@@ -58,6 +58,34 @@ func (r *MemoryRepository) GetAllFoodCards() []entities.FoodCard {
 	return copiedCards
 }
 
+func (r *MemoryRepository) UpdateFoodCard(foodCard entities.FoodCard) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for i := range r.foodCards {
+		if r.foodCards[i].Key == foodCard.Key {
+			r.foodCards[i] = foodCard
+			return nil
+		}
+	}
+
+	return errors.New("food card not found")
+}
+
+func (r *MemoryRepository) DeleteFoodCard(id entities.FoodCardKey) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for i := range r.foodCards {
+		if r.foodCards[i].Key == id {
+			r.foodCards = append(r.foodCards[:i], r.foodCards[i+1:]...)
+			return nil
+		}
+	}
+
+	return errors.New("food card not found")
+}
+
 func (r *MemoryRepository) loadFoodCards() {
 	data, err := os.ReadFile(r.filePath)
 	if err != nil {

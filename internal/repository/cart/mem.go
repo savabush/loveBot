@@ -59,11 +59,10 @@ func (r *MemoryRepository) AcceptFoodCart(userID entities.UserTelegramID) {
 	delete(r.foodCart, userID)
 }
 
-func (r *MemoryRepository) CleanFoodCart(userID entities.UserTelegramID) error {
+func (r *MemoryRepository) CleanFoodCart(userID entities.UserTelegramID) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.foodCart[userID] = []entities.FoodCard{}
-	return nil
 }
 
 func (r *MemoryRepository) loadFoodCart() {

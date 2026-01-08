@@ -6,4 +6,5 @@ type Repository interface {
 	Add(sticker entities.Sticker) error
 	GetNext() entities.Sticker
 	HasStickers() bool
+	Delete(code string) error
 }

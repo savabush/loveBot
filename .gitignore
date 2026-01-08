@@ -1,3 +1,5 @@
 .idea
 breakFastLoveBot
 .env
+data
+*.json

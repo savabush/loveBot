@@ -24,3 +24,7 @@ func (s *StickerService) GetNext() entities.Sticker {
 func (s *StickerService) HasStickers() bool {
 	return s.repo.HasStickers()
 }
+
+func (s *StickerService) DeleteSticker(code string) error {
+	return s.repo.Delete(code)
+}
