@@ -19,6 +19,10 @@ func DeletePreviousBotMessage(next bot.HandlerFunc) bot.HandlerFunc {
 				log.Println(err)
 			}
 		}()
+		if update.CallbackQuery != nil {
+			next(ctx, b, update)
+			return
+		}
 		if update.Message != nil {
 			fmt.Println(update.Message.Text)
 			messageStore := store.NewMessageStoreService(ctx, b)

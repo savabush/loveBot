@@ -24,3 +24,11 @@ func (s *FoodCardService) GetFoodCardByID(id entities.FoodCardKey) (entities.Foo
 func (s *FoodCardService) GetAllFoodCards() []entities.FoodCard {
 	return s.repo.GetAllFoodCards()
 }
+
+func (s *FoodCardService) UpdateFoodCard(foodCard entities.FoodCard) error {
+	return s.repo.UpdateFoodCard(foodCard)
+}
+
+func (s *FoodCardService) DeleteFoodCard(id entities.FoodCardKey) error {
+	return s.repo.DeleteFoodCard(id)
+}

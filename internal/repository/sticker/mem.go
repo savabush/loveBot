@@ -74,6 +74,28 @@ func (r *MemoryRepository) HasStickers() bool {
 	return len(r.stickers) > 0
 }
 
+func (r *MemoryRepository) Delete(code string) error {
+	if code == "" {
+		return errors.New("empty sticker code")
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for i := range r.stickers {
+		if r.stickers[i].Code == code {
+			r.stickers = append(r.stickers[:i], r.stickers[i+1:]...)
+			if len(r.stickers) == 0 {
+				r.curIndex = 0
+				return nil
+			}
+			if r.curIndex >= uint(len(r.stickers)) {
+				r.curIndex = 0
+			}
+			return nil
+		}
+	}
+	return errors.New("sticker not found")
+}
+
 func (r *MemoryRepository) loadStickers() {
 	data, err := os.ReadFile(r.filePath)
 	if err != nil {
